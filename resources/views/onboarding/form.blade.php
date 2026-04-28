@@ -60,7 +60,7 @@
 
 
                 <!-- On parcours la config pour générer le formulaire -->
-                <form action="{{ route('client.onboarding.submit', $token) }}" method="POST" enctype="multipart/form-data">
+                <form id="onboarding-form" action="{{ route('client.onboarding.submit', $token) }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     @if($project->formConfig && $project->formConfig->fields)
@@ -212,6 +212,7 @@
                     @endif
 
                     <div class="mt-5 pt-4 border-top">
+                        <div id="autosave-status" class="small text-muted mb-3 text-center">Modifiez un champ pour enregistrer automatiquement.</div>
                         <button type="submit" class="btn btn-njie btn-lg w-100 fw-bold py-3">
                             <i class="fas fa-paper-plane me-2"></i> SAUVEGARDER
                         </button>
@@ -233,5 +234,72 @@
 @endif --}}
 
 </main>
+<script>
+    (function () {
+        const form = document.getElementById('onboarding-form');
+        const statusEl = document.getElementById('autosave-status');
+        if (!form || !statusEl) return;
+
+        let debounceTimer = null;
+        let isSaving = false;
+        let hasQueuedSave = false;
+
+        const setStatus = (text, colorClass = 'text-muted') => {
+            statusEl.className = `small mb-3 text-center ${colorClass}`;
+            statusEl.textContent = text;
+        };
+
+        const saveForm = async () => {
+            if (isSaving) {
+                hasQueuedSave = true;
+                return;
+            }
+
+            isSaving = true;
+            setStatus('Enregistrement en cours...', 'text-warning');
+
+            try {
+                const formData = new FormData(form);
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                setStatus('Enregistre automatiquement.', 'text-success');
+            } catch (error) {
+                setStatus('Erreur d enregistrement. Verifiez la connexion.', 'text-danger');
+            } finally {
+                isSaving = false;
+                if (hasQueuedSave) {
+                    hasQueuedSave = false;
+                    saveForm();
+                }
+            }
+        };
+
+        const scheduleSave = () => {
+            clearTimeout(debounceTimer);
+            setStatus('Modifications detectees...', 'text-muted');
+            debounceTimer = setTimeout(saveForm, 900);
+        };
+
+        form.querySelectorAll('input, textarea, select').forEach((field) => {
+            if (field.type === 'file') {
+                field.addEventListener('change', scheduleSave);
+            } else {
+                field.addEventListener('input', scheduleSave);
+                field.addEventListener('change', scheduleSave);
+            }
+        });
+    })();
+</script>
 </body>
 </html>
