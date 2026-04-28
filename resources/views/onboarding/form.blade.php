@@ -28,6 +28,55 @@
      crossorigin="anonymous"></script>
 </head>
 <body>
+<style>
+    #autosave-bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1050;
+        margin: 0 !important;
+        padding: 12px 16px !important;
+        background: #ffffff;
+        border-top: 2px solid #111 !important;
+        box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.12);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    #autosave-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid #dee2e6;
+        background: #f8f9fa;
+        margin: 0 !important;
+        font-size: 0.9rem;
+    }
+
+    body {
+        padding-bottom: 160px;
+    }
+
+    #autosave-submit {
+        white-space: nowrap;
+        min-width: 190px;
+    }
+
+    @media (max-width: 768px) {
+        #autosave-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        #autosave-submit {
+            width: 100%;
+        }
+    }
+</style>
 
     <main>
 
@@ -211,15 +260,7 @@
                         </div>
                     @endif
 
-                    <div class="mt-5 pt-4 border-top">
-                        <div id="autosave-status" class="small text-muted mb-3 text-center">Modifiez un champ pour enregistrer automatiquement.</div>
-                        <button type="submit" class="btn btn-njie btn-lg w-100 fw-bold py-3">
-                            <i class="fas fa-paper-plane me-2"></i> SAUVEGARDER
-                        </button>
-                        <p class="text-center small text-muted mt-3">
-                            En cliquant sur valider, vous acceptez que ces données soient transmises pour le développement de votre projet.
-                        </p>
-                    </div>
+
                 </form>
             </div>
         </div>
@@ -232,7 +273,12 @@
         alert("{{ session('success') }}");
     </script>
 @endif --}}
-
+ <div id="autosave-bar" class="mt-5 pt-4 border-top">
+                        <div id="autosave-status" class="text-muted">Modifiez un champ pour enregistrer automatiquement.</div>
+                        <button id="autosave-submit" type="button" class="btn btn-njie fw-bold px-4 py-2">
+                            <i class="fas fa-paper-plane me-2"></i> SAUVEGARDER
+                        </button>
+                    </div>
 </main>
 <script>
     (function () {
@@ -245,7 +291,7 @@
         let hasQueuedSave = false;
 
         const setStatus = (text, colorClass = 'text-muted') => {
-            statusEl.className = `small mb-3 text-center ${colorClass}`;
+            statusEl.className = colorClass;
             statusEl.textContent = text;
         };
 
@@ -300,6 +346,11 @@
             }
         });
     })();
+
+
+    document.getElementById('autosave-submit').addEventListener('click', function () {
+    document.getElementById('onboarding-form').submit();
+});
 </script>
 </body>
 </html>
