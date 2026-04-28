@@ -28,7 +28,10 @@ class OnboardingController extends Controller
         // 4. Séparer clairement les données textes et les fichiers
         // Cela correspond à la structure que nous forçons dans submitForm
         $formData = $dbData['form_data'] ?? [];
+        // dd($formData);
         $uploadedFiles = $dbData['uploaded_files'] ?? [];
+
+
 
         // 5. Retourner la vue avec toutes les variables nécessaires
         return view('onboarding.form', [
@@ -43,7 +46,6 @@ class OnboardingController extends Controller
     public function submitForm(Request $request, $token)
     {
         $project = Project::where('token', $token)->firstOrFail();
-
         // 1. Récupérer les données textes du formulaire actuel
         $newFormData = $request->input('form_data', []);
         if (!is_array($newFormData)) {

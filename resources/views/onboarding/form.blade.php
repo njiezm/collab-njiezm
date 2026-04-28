@@ -99,7 +99,7 @@
             name="files[{{ $field['key'] }}]"
             class="form-control border-njie"
             style="padding-top: 8px;"
-            @if($field['required']) required @endif>
+            @if($field['required'] && !isset($uploadedFiles[$field['key']])) required @endif>
 
         <!-- AFFICHAGE FICHIER EXISTANT -->
         @if(isset($uploadedFiles[$field['key']]))
